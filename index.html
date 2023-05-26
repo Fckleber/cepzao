@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="shortcut icon" href="icon/30946.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="css/script.js"></script>
+    <title>CEPZÃO</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Digite o CEP abaixo:</h1>
+        <form method="get" action="javascript:void(0);">
+            <label>Cep:
+                <input name="cep" type="text" id="cep" value="" maxlength="9" />
+            </label><br />
+            <button type="button" id="buscar" onclick="pesquisar_endereco()">Buscar</button>
+        </form>
+        <div id="resultado" style="display: none;">
+            <label>Rua:
+                <input name="rua" type="text" id="rua" size="60" readonly />
+            </label><br />
+            <label>Bairro:
+                <input name="bairro" type="text" id="bairro" size="40" readonly />
+            </label><br />
+            <label>Cidade:
+                <input name="cidade" type="text" id="cidade" size="40" readonly />
+            </label><br />
+            <label>Estado:
+                <input name="uf" type="text" id="uf" size="2" readonly />
+            </label><br />
+            <button type="button" id="voltar" style="display: none;" onclick="voltarInicio()">Voltar</button>
+        </div>
+    </div>
+    <script>
+        function exibirResultado() {
+            var resultadoDiv = document.getElementById('resultado');
+            var buscarBtn = document.getElementById('buscar');
+            var voltarBtn = document.getElementById('voltar');
+
+            resultadoDiv.style.display = 'block';
+            buscarBtn.style.display = 'none';
+            voltarBtn.style.display = 'block';
+        }
+
+        function pesquisar_endereco() {
+            var cep = document.getElementById('cep').value.replace(/\D/g, '');
+
+            if (cep !== "") {
+                var validacep = /^[0-9]{8}$/;
+
+                if (validacep.test(cep)) {
+                    limpa_formulário_endereco();
+
+                    fetch('https://viacep.com.br/ws/' + cep + '/json/')
+                        .then(function(response) {
+                            return response.json();
+                        })
+                        .then(function(data) {
+                            if (data.erro) {
+                                alert("CEP não encontrado.");
+                            } else {
+                                preenche_formulário_endereco(data);
+                                exibirResultado();
+                            }
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                            alert("Ocorreu um erro ao consultar o CEP. Por favor, tente novamente mais tarde.");
+                        });
+                } else {
+                    limpa_formulário_endereco();
+                    alert("Formato de CEP inválido. Digite apenas números.");
+                }
+            } else {
+                limpa_formulário_endereco();
+                alert("Por favor, digite um CEP válido.");
+            }
+        }
+
+        function voltarInicio() {
+            limpa_formulário_endereco();
+            var resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.style.display = 'none';
+            var buscarBtn = document.getElementById('buscar');
+            buscarBtn.style.display = 'block';
+            var voltarBtn = document.getElementById('voltar');
+            voltarBtn.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
